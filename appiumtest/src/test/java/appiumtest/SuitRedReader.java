@@ -34,15 +34,18 @@ public class SuitRedReader {
 		}
 
 	}
-	private static void mostrarObjDisponibles( ) {
-		List<MobileElement> elements = driver.findElements(MobileBy.xpath("//UIAWindow[1]/*"));
+	private static void mostrarObjDisponibles() {
+		System.out.println("Buscando objetos disponibles");
+		//List<MobileElement> elements = driver.findElements(MobileBy.xpath("//UIAWindow[1]/*"));
+		List<MobileElement> elements = driver.findElements(MobileBy.xpath("//reddit_post_subtitle/*"));
 		for (MobileElement ele : elements) {
 			String claseItem = ele.getClass().getName();
 			String textoItem = ele.getText();
 			System.out.println(" class "+claseItem+" texto "+textoItem);
+			
 		}
 	}
-	public static void openReader() throws MalformedURLException {
+	public static void openReader() throws MalformedURLException, InterruptedException {
 		DesiredCapabilities cap = new DesiredCapabilities();
 		cap.setCapability("deviceName", "SM-A715F/DS");
 		cap.setCapability("udid", "R58N21FFV3F");
@@ -55,7 +58,7 @@ public class SuitRedReader {
 		driver = new AppiumDriver<MobileElement>(url, cap);
 		System.out.println("Application started...");
 		String ELEMENTO_UBICACION_PERSONALIZADA = "Ubicación personalizada";
-		MobileElement itemGeneral = driver.findElement(By.id("org.quantumbadger.redreader:id/list_item_text"));
+		//MobileElement itemGeneral = driver.findElement(By.id("org.quantumbadger.redreader:id/list_item_text"));
 		//scroll(itemGeneral);
 		//otroScroll();
 		List<MobileElement> item = driver.findElements(By.id("org.quantumbadger.redreader:id/list_item_text"));
@@ -68,13 +71,17 @@ public class SuitRedReader {
 			MobileElement mob = item.get(cont);
 			System.out.println(" class "+claseItem+" texto "+textoItem);
 			if( textoItem.equals(ELEMENTO_UBICACION_PERSONALIZADA)) {
-				//Cuando se salta un objeto toca buscar nuevamente 
+				
 				item = driver.findElements(By.id("org.quantumbadger.redreader:id/list_item_text"));
+				
 				cont++;continue;
 			}
 			try {
 				mob.click();
 				sePudoDarClick = true;
+
+
+				
 			} catch( Exception ex) {
 				ex.printStackTrace();
 			}
@@ -91,9 +98,23 @@ public class SuitRedReader {
 			System.out.println(" se pudo dar click "+sePudoDarClick);
 			mostrarObjDisponibles();
 			if( sePudoDarClick ) {
-				MobileElement backArrow = driver.findElement(By.id("org.quantumbadger.redreader:id/actionbar_title_back_image"));
-				 backArrow.click();
-			}
+				mostrarObjDisponibles();
+                MobileElement subtitle = driver.findElement(By.id("org.quantumbadger.redreader:id/reddit_post_subtitle"));
+                MobileElement thumbnail = driver.findElement(By.id("org.quantumbadger.redreader:id/reddit_post_thumbnail_view"));
+	                if(thumbnail != null) {				  
+	                   subtitle.click();
+	                   //System.out.println(" current1: "+driver.toString());
+	                   back();
+	                   Thread.sleep(2000);
+	                   //System.out.println(" current2: "+driver.toString());
+	                   back();
+	                   Thread.sleep(2000);
+	                }else {
+	                //	System.out.println(" current3: "+driver.toString());
+	                	back();
+	                 }
+                }
+
 		    cont++;
 		    
 		    item = driver.findElements(By.id("org.quantumbadger.redreader:id/list_item_text"));
@@ -101,7 +122,7 @@ public class SuitRedReader {
 		    
 		    if(cont >= (item.size() - 3)) {
 		    	//scroll(itemGeneral);
-		    	otroScroll();
+		    	//otroScroll();
 		    }
 		    //reintentos porque a veces no encuentro el objeto
 		    while(  item.size() == 0) {
@@ -129,7 +150,7 @@ public class SuitRedReader {
 		       scrollObject.put("strategy", "up");
 		       scrollObject.put("selector", "up");
 		       js.executeScript("mobile: scroll",scrollObject);
-		       //driver.executeScript("mobile", "scroll", "direction" , "up");
+		       
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -144,6 +165,14 @@ public class SuitRedReader {
 		actions.perform();
 	}
 	
-	
+	public static void back() throws InterruptedException {
+		System.out.println("Tratando de hacer back");
+		MobileElement backArrow = driver.findElement(By.id("org.quantumbadger.redreader:id/actionbar_title_back_image"));
+		//while(backArrow.isDisplayed()) {
+			backArrow = driver.findElement(By.id("org.quantumbadger.redreader:id/actionbar_title_back_image"));
+		//}
+        backArrow.click();
+        //Thread.sleep(200000);
+	}
 	
 }
